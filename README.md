@@ -4,6 +4,10 @@ This Docker mod lets you slipstream Tailscale into
 [linuxserver.io](https://linuxserver.io) containers. This lets you
 have applications join your tailnet.
 
+## Fork
+
+This fork uses an embedded tailscale package instead of downloading it at runtime.
+
 ## Configuration
 
 The Docker mod exposes a bunch of environment variables that you can
