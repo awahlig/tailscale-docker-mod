@@ -12,8 +12,8 @@ RUN arch=$(echo ${TARGETPLATFORM} | cut -d/ -f2) \
   && curl -f "https://pkgs.tailscale.com/stable/${tarball}.tgz" -o tailscale.tgz \
   && tar xzf tailscale.tgz \
   && mkdir -p /root-layer/usr/bin /root-layer/usr/sbin \
-  && cp -vrf "${tarball}/tailscale" /root-layer/usr/bin/tailscale \
-  && cp -vrf "${tarball}/tailscaled" /root-layer/usr/sbin/tailscaled
+  && cp "${tarball}/tailscale" /root-layer/usr/bin/ \
+  && cp "${tarball}/tailscaled" /root-layer/usr/sbin/
 
 COPY root/ /root-layer/
 
