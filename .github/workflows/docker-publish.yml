@@ -8,10 +8,11 @@ name: Docker image builds
 on:
   push:
     branches: [ "main" ]
-    # Publish semver tags as releases.
-    tags: [ 'v*.*.*' ]
   pull_request:
     branches: [ "main" ]
+  schedule:
+    # Runs at 00:00 UTC every Monday
+    - cron: '0 0 * * 1'
 
 env:
   # Use docker.io for Docker Hub if empty
@@ -34,6 +35,13 @@ jobs:
       # Install the cosign tool except on PR
       # https://github.com/sigstore/cosign-installer
 
+      - name: Fetch Tailscale version
+        id: fetch-version
+        run: |
+          VERSION=$(curl -s 'https://pkgs.tailscale.com/stable/?mode=json' | jq -r '.TarballsVersion')
+          echo "Tailscale version $VERSION"
+          echo "::set-output name=VERSION::$VERSION"
+
       - name: Install cosign
         if: github.event_name != 'pull_request'
         uses: sigstore/cosign-installer@6e04d228eb30da1757ee4e1dd75a0ec73a653e06 #v3.1.1
@@ -45,9 +53,6 @@ jobs:
       # https://github.com/docker/setup-buildx-action
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226 # v3.0.0
-
-      # Login against a Docker registry except on PR
-      # https://github.com/docker/login-action
 
       # Login against a Docker registry except on PR
       # https://github.com/docker/login-action
@@ -66,6 +71,7 @@ jobs:
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: ${{ steps.fetch-version.outputs.VERSION }},latest
 
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
@@ -77,6 +83,7 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: VERSION=${{ steps.fetch-version.outputs.VERSION }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
