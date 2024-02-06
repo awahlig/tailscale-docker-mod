@@ -40,7 +40,7 @@ jobs:
         run: |
           VERSION=$(curl -s 'https://pkgs.tailscale.com/stable/?mode=json' | jq -r '.TarballsVersion')
           echo "Tailscale version $VERSION"
-          echo "version=$VERSION" >> GITHUB_OUTPUT
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Install cosign
         if: github.event_name != 'pull_request'
